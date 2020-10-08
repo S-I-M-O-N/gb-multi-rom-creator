@@ -15,7 +15,7 @@
 #
 # GB Multi Rom Creator
 # by S-I-M-O-N
-# https://github.com/S-I-M-O-N
+# https://github.com/S-I-M-O-N/gb-multirom-creator
 #
 #
 #
@@ -38,6 +38,9 @@
 # 
 # As the game roms are not always 512kb the space is padded with zeros to complete 512kb, before the next rom is merged into the image.
 #
+# This version supports the following rom sizes: 32kb, 64kb, 128kb, 256kb, 512kb 
+#
+# Roms (*.gb) need to be placed in the shell script folder.
 #
 
 programversion="GB Multi Rom Creator v1.0"
@@ -186,7 +189,8 @@ done
 			;;
 		*)
 			rom1_kb=$((rom1_size/1024));
-			echo "$rom1 has a non standard size of $rom1_kb"
+			echo "$rom1 has a non standard size of $rom1_kb kb"
+			romerror=true
 			;;
 	esac
 
@@ -230,7 +234,8 @@ done
 			;;
 		*)
 			rom2_kb=$((rom2_size/1024));
-			echo "$rom2 has a non standard size of $rom1_kb"
+			echo "$rom2 has a non standard size of $rom2_kb kb"
+			romerror=true
 			;;
 	esac
 
@@ -274,7 +279,8 @@ done
 			;;
 		*)
 			rom3_kb=$((rom3_size/1024));
-			echo "$rom3 has a non standard size of $rom3_kb"
+			echo "$rom3 has a non standard size of $rom3_kb kb"
+			romerror=true
 			;;
 	esac
 
@@ -283,6 +289,11 @@ done
 	do
 		cat res/blank.gb >> res/rom0.gb
 	done
-cat res/rom0.gb res/rom1.gb res/rom2.gb res/rom3.gb > multirom.gb
-
-echo "multirom.gb created"
+	
+	if (("$romerror" != "true"))
+	then
+		cat res/rom0.gb res/rom1.gb res/rom2.gb res/rom3.gb > multirom.gb
+		echo "multirom.gb created"
+	else
+		echo "Multirom creation aborted"
+	fi
