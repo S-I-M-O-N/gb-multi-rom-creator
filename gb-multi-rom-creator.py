@@ -37,6 +37,12 @@
 # 
 # As the game roms are not always 512kb the space is padded with zeros to complete 512kb, before the next rom is merged into the image.
 #
+# Version 2 of the script features a new approach to a multirom menu currently under developed by b0h.
+# https://github.com/b0h5stuff/startup.gb
+#
+# The new concept uses a dedicated bank where the roms are temporarily flashed to for running.
+# This allows to add more than 3 roms to one cartridge.
+#
 # Roms (*.gb) need to be placed in the script folder.
 #
 
@@ -53,77 +59,132 @@ elif platform == "win32":
 rom1=""
 rom2=""
 rom3=""
+romno=1
+romsselectedsize=0
+chipsize=2048
+maxromsize=256
+startupsize=32
 blank=os.path.join("res","blank.gb")
-startup=os.path.join("res","startup.gb")
+startup=os.path.join("res","startup22.gb")
+mode=2
+programversion="GB Multi Rom Creator v2.0"
 
-programversion="GB Multi Rom Creator v1.0"
+def select_mode():
+    global chipsize
+    global startup
+    global maxromsize
+    global startupsize
+    global mode
+    while True:
+        clear()
+        print(programversion)
+        print("Startup Menu:",startup)
+        print("Chip size:",chipsize,"kB")
+        print("Max rom size:",maxromsize,"kB")
+        print()
+        print("1: Select startup menu")
+        print()
+        print( "Please select menu entry. Enter 0 to exit menu.")
+        item=int(input())
+        if(item==0):
+            print()
+        elif(item==1):
+            clear()
+            print("1: startup.gb (v1.3: Max 3 roms for AM29F016)")
+            print("2: startup22.gb (v2.2: Multiple roms with temporary flashing)")
+            print()
+            print( "Please select menu entry. Enter 0 to exit menu.")
+            item2=int(input())
+            if(item2==0):
+               print() 
+            elif(item2==1):
+                startup=os.path.join("res","startup.gb")
+                startupsize=os.path.getsize(startup)/1024
+                mode=1
+                maxromsize=512
+            elif(item2==2):
+                startup=os.path.join("res","startup22.gb")
+                startupsize=os.path.getsize(startup)/1024
+                mode=2
+            else:
+                print( "Wrong selection: Select any number from 0-2")
+        else:
+            print( "Wrong selection: Select any number from 0-2")
+        if mode==1:
+            break
+        clear()
+        print(programversion)
+        print("Startup Menu:",startup)
+        print("Chip size:",chipsize,"kB")
+        print("Max rom size:",maxromsize,"kB")
+        print()
+        print("1: Select flash chip")
+        print()
+        print( "Please select menu entry. Enter 0 to exit menu.")
+        item=int(input())
+        if(item==0):
+            break
+        elif(item==1):
+            clear()
+            print("1: 2048kB (AM29F016, etc.)")
+            print("2: 1024kB (AM29F080, etc.)")
+            print("3:  512kB (AM29F040, etc.)")
+            print()
+            print( "Please select menu entry. Enter 0 to exit menu.")
+            item2=int(input())
+            if(item2==0):
+                break
+            elif(item2==1):
+                chipsize=2048
+                maxromsize=256
+                if mode==1:
+                    maxromsize=512
+                break
+            elif(item2==2):
+                chipsize=1024
+                maxromsize=128
+                break
+            elif(item2==3):
+                chipsize=512
+                maxromsize=64
+                break
+            else:
+                print( "Wrong selection: Select any number from 0-3")
+                break
 
 
-def select_rom_1():
+def select_rom():
+    global romno
+    global confirmation
+    global romsselected
+    global romsselectedsize
+    global maxromsize
+    global chipsize
+    global startupsize
     print("Available roms:")
     i=1
     while True:
         while i < len(roms)+1:
-            print(i,":",roms[i-1])
+            print(i,":",roms[i-1],"[",int(os.path.getsize(roms[i-1])/1024),"kB ]")
             i += 1
-        print( "Please select rom #1. Enter 0 for blank.")
+        print( "Please select rom",romno,"Enter 0 to stop adding roms.")
         item=int(input())
-        global rom1
         if(item==0):
-            rom1=blank
+            confirmation = "y"
             break
         elif(item<=len(roms)+1):
-            rom1=roms[item-1]
-            if(os.path.getsize(rom1)>1*512*1024):
-                print("The rom is larger than 512kb and thus not compatible. Please reselect.")
+            if(os.path.getsize(roms[item-1])>maxromsize*1024):
+                print("The rom is larger than",maxromsize,"kB and thus not compatible. Please reselect.")
+            elif(os.path.getsize(roms[item-1])>(chipsize-startupsize-maxromsize-(romsselectedsize/1024))*1024):
+                print("The rom is larger than the remaining free space. Please reselect.")
             else:
+                romsselected.append(roms[item-1])
+                romsselectedsize=romsselectedsize+os.path.getsize(roms[item-1])
+                romno += 1
                 break
         else:
             print( "Wrong selection: Select any number from 1-",len(roms))
 
-def select_rom_2():
-    print("Available roms:")
-    i=1
-    while True:
-        while i < len(roms)+1:
-            print(i,":",roms[i-1])
-            i += 1
-        print( "Please select rom #1. Enter 0 for blank.")
-        item=int(input())
-        global rom2
-        if(item==0):
-            rom2=blank
-            break
-        elif(item<=len(roms)+1):
-            rom2=roms[item-1]
-            if(os.path.getsize(rom2)>1*512*1024):
-                print("The rom is larger than 512kb and thus not compatible. Please reselect.")
-            else:
-                break
-        else:
-            print( "Wrong selection: Select any number from 1-",len(roms))
-
-def select_rom_3():
-    print("Available roms:")
-    i=1
-    while True:
-        while i < len(roms)+1:
-            print(i,":",roms[i-1])
-            i += 1
-        print( "Please select rom #1. Enter 0 for blank.")
-        item=int(input())
-        global rom3
-        if(item==0):
-            rom3=blank
-            break
-        elif(item<=len(roms)+1):
-            rom3=roms[item-1]
-            if(os.path.getsize(rom3)>1*512*1024):
-                print("The rom is larger than 512kb and thus not compatible. Please reselect.")
-            else:
-                break
-        else:
-            print( "Wrong selection: Select any number from 1-",len(roms))
 
 roms=[]
 for x in os.listdir():
@@ -132,86 +193,86 @@ for x in os.listdir():
 
 confirmation="n"
 
+clear()
+select_mode()
+
+romsselected=[startup]
+confirmation = "n"
 while confirmation != "y": 
+    i=1
     clear()
     print(programversion)
+    print("Startup Menu:",startup)
+    print("Chip size:",chipsize,"kB")
+    print("Max rom size:",maxromsize,"kB")
+    if mode==2:
+        print("Size menu and selected roms:",int(startupsize+(romsselectedsize/1024)),"kB")
+        print("Remaining space for additional roms:",int(chipsize-startupsize-maxromsize-(romsselectedsize/1024)),"kB")
+        print("Temp r/w memory between",chipsize/4,"kB and",chipsize/4+maxromsize,"kB") 
     print("")
-    print("1:[ROM#1]")
-    print("2:[ROM#2]")
-    print("3:[ROM#3]")
+    print("Selected roms:")
+    while i < len(romsselected):
+        print(i,":",romsselected[i])
+        i += 1
     print("")
-    select_rom_1()
+    select_rom()
+    i=1
     clear()
     print(programversion)
+    print("Startup Menu:",startup)
+    print("Chip size:",chipsize,"kB")
+    print("Max rom size:",maxromsize,"kB")
     print("")
-    print("1:[",rom1,"]")
-    print("2:[ROM#2]")
-    print("3:[ROM#3]")
+    print("Selected roms:")
+    while i < len(romsselected):
+        print(i,":",romsselected[i])
+        i += 1
     print("")
-    select_rom_2()
-    clear()
-    print(programversion)
-    print("")
-    print("1:[",rom1,"]")
-    print("2:[",rom2,"]")
-    print("3:[ROM#3]")
-    print("")
-    select_rom_3()
-    clear()
-    print(programversion)
-    print("")
-    print("1:[",rom1,"]")
-    print("2:[",rom2,"]")
-    print("3:[",rom3,"]")
-    print("")
-    print("Composition ok? (y/n)")
-    confirmation=input()
-   
-    fo=open("multirom.gb", 'w')
-    fo.close()
-    fo=open("multirom.gb", 'ab')
+    if mode==1:
+        if i==4:
+            break
+            
+  
+romno=0
+romsselectedsize=0
+fo=open("multirom.gb", 'w')
+fo.close()
+fo=open("multirom.gb", 'ab')
+
+while romno < len(romsselected):
     numBytes=0
 
-    romsize=(os.path.getsize(startup))
-    fi=open(startup, 'rb')
+    romsize=(os.path.getsize(romsselected[romno]))
+    if mode==2:
+        if int(romsselectedsize)<int(chipsize*1024/4):
+            if int(romsize)>(int(chipsize*1024/4))-int(romsselectedsize):
+                pad=int(chipsize*1024/4)-int(romsselectedsize)
+                while (numBytes<pad+(maxromsize*1024)):
+                    fo.write(b"\00")
+                    numBytes=numBytes+1
+                numBytes=0
+                
+    fi=open(romsselected[romno], 'rb')
     while (numBytes<romsize):
         fo.write(fi.read(1))
         numBytes=numBytes+1
-    while (numBytes<1*512*1024):
-        fo.write(b"\00")
-        numBytes=numBytes+1
+    if mode==1:
+        while (numBytes<maxromsize*1024):
+            fo.write(b"\00")
+            numBytes=numBytes+1
     fi.close()
-
-    romsize=(os.path.getsize(rom1))
-    fi=open(rom1, 'rb')
-    while (numBytes<romsize+1*512*1024):
-        fo.write(fi.read(1))
-        numBytes=numBytes+1
-    while (numBytes<2*512*1024):
-        fo.write(b"\00")
-        numBytes=numBytes+1
-    fi.close()
-
-    romsize=(os.path.getsize(rom2))
-    fi=open(rom2, 'rb')
-    while (numBytes<romsize+2*512*1024):
-        fo.write(fi.read(1))
-        numBytes=numBytes+1
-    while (numBytes<3*512*1024):
-        fo.write(b"\00")
-        numBytes=numBytes+1
-    fi.close()
-
-    romsize=(os.path.getsize(rom3))
-    fi=open(rom3, 'rb')
-    while (numBytes<romsize+3*512*1024):
-        fo.write(fi.read(1))
-        numBytes=numBytes+1
-    while (numBytes<4*512*1024):
-        fo.write(b"\00")
-        numBytes=numBytes+1
-    fi.close()
-
     fo.close()
+    romsselectedsize=os.path.getsize("multirom.gb")
+    fo=open("multirom.gb", 'ab')
+    romno += 1
 
-    print("multirom.gb created")
+fo.close()
+numBytes=os.path.getsize("multirom.gb")
+fo=open("multirom.gb", 'ab')
+while (numBytes<(chipsize*1024)):
+    fo.write(b"\00")
+    numBytes=numBytes+1
+
+fo.close()
+
+print("multirom.gb created")
