@@ -72,9 +72,9 @@ cart1free=(chipsize/4)-erasesize
 cart2free=(chipsize/4)
 cart3free=(chipsize/4)
 blank=os.path.join("res","blank.gb")
-startup=os.path.join("res","startup22.gb")
+startup=os.path.join("res","startupV2.gb")
 mode=2
-programversion="GB Multi Rom Creator v2.1"
+programversion="GB Multi Rom Creator v2.2"
 
 def select_mode():
     global chipsize
@@ -103,7 +103,7 @@ def select_mode():
         elif(item==1):
             clear()
             print("1: startup.gb (v1.3: Max 3 roms for AM29F016)")
-            print("2: startup22.gb (v2.2: Multiple roms with temporary flashing)")
+            print("2: startupV2.gb (v2.0: Multiple roms with temporary flashing)")
             print()
             print( "Please select menu entry. Enter 0 to exit menu.")
             item2=int(input())
@@ -117,7 +117,7 @@ def select_mode():
                 erasesize=0
                 mode=1
             elif(item2==2):
-                startup=os.path.join("res","startup22.gb")
+                startup=os.path.join("res","startupV2.gb")
                 startupsize=os.path.getsize(startup)/1024
                 mode=2
             else:
@@ -200,7 +200,9 @@ def select_rom():
     i=1
     while True:
         while i < len(roms)+1:
-            print(i,":",roms[i-1],"[",int(os.path.getsize(roms[i-1])/1024),"kB ]")
+            j=int(os.path.getsize(roms[i-1])/1024)
+            if j<=maxromsize:
+                print(i,":",roms[i-1],"[",j,"kB ]")
             i += 1
         print( "Please select rom",romno,"Enter 0 to stop adding roms.")
         item=int(input())
