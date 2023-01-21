@@ -65,7 +65,8 @@ rom3no=0
 romsselectedsize=0
 chipsize=2048
 maxromsize=chipsize/4
-erasesize=maxromsize/2
+#erasesize=maxromsize/2
+erasesize=0
 startupsize=32
 cart0free=(chipsize/4)-startupsize
 cart1free=(chipsize/4)-erasesize
@@ -163,7 +164,7 @@ def select_mode():
                     print( "Wrong selection: Select any number from 0-3")
                 
                 maxromsize=chipsize/4
-                erasesize=maxromsize/2
+                #erasesize=maxromsize/2
                 cart0free=maxromsize-startupsize
                 if mode==1:
                     cart0free=0
@@ -215,12 +216,32 @@ def select_rom():
             elif(os.path.getsize(roms[item-1])<=cart0free*1024):
                 romsselected0.append(roms[item-1])
                 cart0free=cart0free-(os.path.getsize(roms[item-1])/1024)
+                if (mode==2 and os.path.getsize(roms[item-1])<maxromsize*1024):
+                    if (os.path.getsize(roms[item-1])>erasesize*1024):
+                        cart1free=cart1free-(os.path.getsize(roms[item-1])/1024)+erasesize
+                        erasesize=os.path.getsize(roms[item-1])/1024
                 rom0no += 1
                 romno += 1
                 break
             elif(os.path.getsize(roms[item-1])<=cart1free*1024):
+                if(os.path.getsize(roms[item-1])==maxromsize*1024):
+                    if(os.path.getsize(roms[item-1])<=cart2free*1024):
+                        romsselected2.append(roms[item-1])
+                        cart2free=cart2free-(os.path.getsize(roms[item-1])/1024)
+                    elif(os.path.getsize(roms[item-1])<=cart3free*1024):
+                        romsselected3.append(roms[item-1])
+                        cart3free=cart3free-(os.path.getsize(roms[item-1])/1024)
+                    else:
+                        romsselected1.append(roms[item-1])
+                        cart1free=cart1free-(os.path.getsize(roms[item-1])/1024)
+                        cart0free=0
+                    break
                 romsselected1.append(roms[item-1])
                 cart1free=cart1free-(os.path.getsize(roms[item-1])/1024)
+                if (mode==2 and os.path.getsize(roms[item-1])<maxromsize*1024):
+                    if (os.path.getsize(roms[item-1])>erasesize*1024):
+                        cart1free=cart1free-(os.path.getsize(roms[item-1])/1024)+erasesize
+                        erasesize=os.path.getsize(roms[item-1])/1024
                 if mode==1:
                     cart1free=0
                 rom1no += 1
@@ -229,6 +250,10 @@ def select_rom():
             elif(os.path.getsize(roms[item-1])<=cart2free*1024):
                 romsselected2.append(roms[item-1])
                 cart2free=cart2free-(os.path.getsize(roms[item-1])/1024)
+                if (mode==2 and os.path.getsize(roms[item-1])<maxromsize*1024):
+                    if (os.path.getsize(roms[item-1])>erasesize*1024):
+                        cart1free=cart1free-(os.path.getsize(roms[item-1])/1024)+erasesize
+                        erasesize=os.path.getsize(roms[item-1])/1024
                 if mode==1:
                     cart2free=0
                 rom2no += 1
@@ -237,6 +262,10 @@ def select_rom():
             elif(os.path.getsize(roms[item-1])<=cart3free*1024):
                 romsselected3.append(roms[item-1])
                 cart3free=cart3free-(os.path.getsize(roms[item-1])/1024)
+                if (mode==2 and os.path.getsize(roms[item-1])<maxromsize*1024):
+                    if (os.path.getsize(roms[item-1])>erasesize*1024):
+                        cart1free=cart1free-(os.path.getsize(roms[item-1])/1024)+erasesize
+                        erasesize=os.path.getsize(roms[item-1])/1024
                 if mode==1:
                     cart3free=0
                 rom3no += 1
