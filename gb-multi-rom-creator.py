@@ -369,14 +369,14 @@ while rom0no < len(romsselected0):
         numBytes=numBytes+1
     if mode==1:
         while (numBytes<maxromsize*1024):
-            fo.write(b"\00")
+            fo.write(b"\xFF")
             numBytes=numBytes+1
     fi.close()
     rom0no += 1
 
 numBytes=int(maxromsize-cart0free)*1024
 while (numBytes<(maxromsize+erasesize)*1024):
-    fo.write(b"\00")
+    fo.write(b"\xFF")
     numBytes=numBytes+1
 
 while rom1no < len(romsselected1):
@@ -390,14 +390,14 @@ while rom1no < len(romsselected1):
         numBytes=numBytes+1
     if mode==1:
         while (numBytes<(maxromsize)*1024):
-            fo.write(b"\00")
+            fo.write(b"\xFF")
             numBytes=numBytes+1
     fi.close()
     rom1no += 1
 
 numBytes=int(maxromsize-cart1free)*1024
 while (numBytes<maxromsize*1024):
-    fo.write(b"\00")
+    fo.write(b"\xFF")
     numBytes=numBytes+1
 
 while rom2no < len(romsselected2):
@@ -411,14 +411,14 @@ while rom2no < len(romsselected2):
         numBytes=numBytes+1
     if mode==1:
         while (numBytes<maxromsize*1024):
-            fo.write(b"\00")
+            fo.write(b"\xFF")
             numBytes=numBytes+1
     fi.close()
     rom2no += 1
 
 numBytes=int(maxromsize-cart2free)*1024
 while (numBytes<maxromsize*1024):
-    fo.write(b"\00")
+    fo.write(b"\xFF")
     numBytes=numBytes+1
 
 while rom3no < len(romsselected3):
@@ -432,14 +432,14 @@ while rom3no < len(romsselected3):
         numBytes=numBytes+1
     if mode==1:
         while (numBytes<maxromsize*1024):
-            fo.write(b"\00")
+            fo.write(b"\xFF")
             numBytes=numBytes+1
     fi.close()
     rom3no += 1
 
 numBytes=int(maxromsize-cart3free)*1024
 while (numBytes<int(maxromsize*1024)):
-    fo.write(b"\00")
+    fo.write(b"\xFF")
     numBytes=numBytes+1
 
 fo.close()
